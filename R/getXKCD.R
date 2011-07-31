@@ -1,22 +1,31 @@
-
-xkcd.env <- new.env(hash=TRUE, parent=emptyenv())
-
-# xkcd.env <- new.env() # it works
-
-.onLoad <- function(lib, pkg) {
-	xkcd.df <- NULL #  Thanks to Duncan Murdoch
-	home <- Sys.getenv("HOME") # user's home directory
-	if( file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) {
-		load( paste(home, ".Rconfig/rxkcd.rda", sep="/") )
-		xkcd.env[["xkcd.data"]] <- xkcd.df
-	} else {
-		# path <- system.file("xkcd", package = "RXKCD", lib.loc=lib)
-		path <- system.file("xkcd", package = "RXKCD", lib.loc=lib) # fix requested by Brian Ripley
-		xkcd <- file.path(path, list.files(path))
-		load( xkcd, envir = xkcd.env )
-		xkcd.env[["xkcd.data"]] <- xkcd.df
-	}
+read.xkcd <- function(file = NULL)
+{
+  if(!is.null(file) && file.exists(file)) {
+    xkcd <- file
+  } else {
+    path <- system.file("xkcd", package = "RXKCD") # fix requested by Brian Ripley
+    datafiles <- list.files(path)
+    if(!is.null(file) && file.exists(file.path(path, file))) {
+      xkcd <- file.path(path, file)
+    } else {
+      if(!is.null(file)) stop("sorry, ", sQuote(file), " not found")
+      file <- datafiles
+      xkcd <- file.path(path, file)
+    }
+  }
+  out <-read.csv(xkcd)
+  return(out)
 }
+
+# load.config <- function() {
+# 	xkcd.df <- NULL # Thanks to Duncan Murdoch
+# 	home <- Sys.getenv("HOME") # user's home directory
+# 	if( file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) {
+# 		load( paste(home, ".Rconfig/rxkcd.rda", sep="/") )
+# 		xkcd.df <- xkcd.df
+# 	} else	xkcd.df <- read.xkcd()
+# 	xkcd.df
+# }
 #'
 #' Update the XKCD database saved in the user directory
 #'
@@ -36,10 +45,13 @@ updateConfig <- function(){
 	tmp <-list()
 	for( i in c((from+1):(current$num)) ) tmp[[i]] <- getXKCD(i, display=F)
 	xkcd2add <- data.frame( do.call(rbind,tmp) )
-	xkcd2add <- data.frame(apply(xkcd2add ,2, ldply, as.vector))
-	xkcd2add <- cbind(xkcd2add[, 4], xkcd2add)
-	colnames(xkcd2add) <- colnames(xkcd.df)
-	xkcd.updated <- rbind(xkcd.df, xkcd2add)
+	xkcd2add <- cbind("id"=unlist(xkcd2add[["num"]]), xkcd2add)
+	junk=colnames(xkcd2add)
+	xkcd2add <- data.frame(apply(xkcd2add ,2, ldply, as.vector)) # columns converted from list to vector
+	colnames(xkcd2add) <- junk
+	xkcd.tmp <- data.frame(apply(xkcd.df ,2, ldply, as.vector))
+	colnames(xkcd.tmp) <- colnames(xkcd.df)
+	xkcd.updated <- rbind(xkcd.tmp, subset(xkcd2add,select=colnames(xkcd.df)))
 	xkcd.df <- xkcd.updated
 	save( xkcd.df, file=paste(home, ".Rconfig/rxkcd.rda", sep="/") , compress=TRUE)
 }
@@ -53,15 +65,11 @@ updateConfig <- function(){
 #' @export
 #'
 saveConfig <- function(){
-	xkcd.df <- NULL # to satisfy codetools
 	home <- Sys.getenv("HOME") # home dir of the user
 	if( file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) stop("Use updateConfig() for updating your local xkcd database")
 	else {
 		dir.create( paste(home, ".Rconfig", sep="/") )
-		path <- system.file("xkcd", package = "RXKCD")
-		xkcd <- file.path(path, list.files(path))
-		load( xkcd, envir = xkcd.env )
-		# load( xkcd )
+		xkcd.df <- read.xkcd()
 		save( xkcd.df, file=paste(home, ".Rconfig/rxkcd.rda", sep="/") , compress=TRUE)
 	}
 }
@@ -71,7 +79,7 @@ saveConfig <- function(){
 #' This function use grep to inspect the title and trascript for all the occurrences of a specified string and return a data.frame with both the number and the title of the XKCD comic strips.
 #'
 #' @param which string.
-#' @param xkcd.data A character string giving a xkcd file in csv format. By default the csv file in the data directory of the xkcd package are used.
+#' @param xkcd.df A character string giving a xkcd file in csv format. By default the csv file in the data directory of the xkcd package are used.
 #'
 #' @return a data.frame containing the following fields: \itemize{
 #' \item num The num of the XKCD comic strip
@@ -88,18 +96,20 @@ saveConfig <- function(){
 #' searchXKCD(which="significant") 
 #' searchXKCD(which="someone is wrong") }
 #'
-searchXKCD <- function(which="significant", xkcd.data = NULL){
-	.onLoad()
-	if(is.null(xkcd.data))
-		xkcd.data <- get("xkcd.data", envir = xkcd.env)
-		# xkcd.data <- get("xkcd.df", envir = xkcd.env)
-		if(is.character(which)) {
-		  if(length(which) > 1) which <- sample(which)
-		which.tt <- grep(which, xkcd.data["title"][[1]], ignore.case = TRUE, useBytes = TRUE)
-		which.tr <- grep(which, xkcd.data["transcript"][[1]], ignore.case =TRUE, useBytes = TRUE)
-		which.all <- unique(c(which.tr, which.tt))
-		} 
-	out <- data.frame(num=xkcd.data[which.all, "num"], title=xkcd.data[which.all, "title"])
+searchXKCD <- function(which="significant"){
+	xkcd.df <- NULL # Thanks to Duncan Murdoch
+	home <- Sys.getenv("HOME") # user's home directory
+	if( file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) {
+		load( paste(home, ".Rconfig/rxkcd.rda", sep="/") )
+		xkcd.df <- xkcd.df
+	} else	xkcd.df <- read.xkcd()
+	if(is.character(which)) {
+		if(length(which) > 1) which <- sample(which)
+	which.tt <- grep(which, xkcd.df["title"][[1]], ignore.case = TRUE, useBytes = TRUE)
+	which.tr <- grep(which, xkcd.df["transcript"][[1]], ignore.case =TRUE, useBytes = TRUE)
+	which.all <- unique(c(which.tr, which.tt))
+	} 
+	out <- data.frame(num=xkcd.df[which.all, "num"], title=xkcd.df[which.all, "title"])
 	return(out)	
 }
 #'

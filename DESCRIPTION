@@ -1,7 +1,7 @@
 Package: RXKCD
 Type: Package
 Title: Get XKCD comic from R
-Version: 1.7-2
+Version: 1.7-3
 Date: 2011-07-31
 Author: Paolo Sonego <paolo.sonego@gmail.com>
 Maintainer: Paolo Sonego <paolo.sonego@gmail.com>
@@ -14,6 +14,6 @@ Imports: utils, plyr
 License: GPL-2
 LazyLoad: yes
 Collate: 'getXKCD.R'
-Packaged: 2012-04-18 07:40:25 UTC; paolo
+Packaged: 2012-06-06 09:48:35 UTC; paolo
 Repository: CRAN
-Date/Publication: 2012-04-18 08:35:15
+Date/Publication: 2012-06-06 12:53:51
