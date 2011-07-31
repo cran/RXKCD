@@ -16,16 +16,6 @@ read.xkcd <- function(file = NULL)
   out <-read.csv(xkcd)
   return(out)
 }
-
-# load.config <- function() {
-# 	xkcd.df <- NULL # Thanks to Duncan Murdoch
-# 	home <- Sys.getenv("HOME") # user's home directory
-# 	if( file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) {
-# 		load( paste(home, ".Rconfig/rxkcd.rda", sep="/") )
-# 		xkcd.df <- xkcd.df
-# 	} else	xkcd.df <- read.xkcd()
-# 	xkcd.df
-# }
 #'
 #' Update the XKCD database saved in the user directory
 #'
@@ -37,22 +27,38 @@ read.xkcd <- function(file = NULL)
 #'
 updateConfig <- function(){
 	home <- Sys.getenv("HOME") # user's home directory
-	if(!file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) stop("Use saveConfig() to save your xkcd database locally!")
-	else load( paste(home, ".Rconfig/rxkcd.rda", sep="/") )
+	if( !file.exists( paste(home, ".Rconfig/rxkcd.rda", sep="/") ) ) {
+		stop("Use saveConfig() to save your xkcd database locally!")
+		} else load( paste(home, ".Rconfig/rxkcd.rda", sep="/") )
 	from <- dim(xkcd.df)[[1]]
 	current <- getXKCD("current", display=F)
 	if ( current$num == xkcd.df$id[dim(xkcd.df)[[1]]] ) stop("Your local xkcd is already updated!")
-	tmp <-list()
-	for( i in c((from+1):(current$num)) ) tmp[[i]] <- getXKCD(i, display=F)
-	xkcd2add <- data.frame( do.call(rbind,tmp) )
-	xkcd2add <- cbind("id"=unlist(xkcd2add[["num"]]), xkcd2add)
-	junk=colnames(xkcd2add)
-	xkcd2add <- data.frame(apply(xkcd2add ,2, ldply, as.vector)) # columns converted from list to vector
-	colnames(xkcd2add) <- junk
-	xkcd.tmp <- data.frame(apply(xkcd.df ,2, ldply, as.vector))
-	colnames(xkcd.tmp) <- colnames(xkcd.df)
-	xkcd.updated <- rbind(xkcd.tmp, subset(xkcd2add,select=colnames(xkcd.df)))
+	tmp <- NULL
+	for( i in c((from+1):(current$num)) ){
+		if (is.null(tmp)) tmp <- getXKCD(i, display=F)
+		else tmp <- rbind(tmp, getXKCD(i, display=F))
+	}
+	suppressWarnings(tmp <- data.frame(tmp))
+	row.names(tmp) <- tmp$num
+	xkcd2add <- cbind( 
+	"id"=unlist(tmp[["num"]]),
+	"img"=unlist(tmp[["img"]]),
+	"title"=unlist(tmp[["title"]]),
+	"month"=unlist(tmp[["month"]]),
+	"num"=unlist(tmp[["num"]]),
+	"link"=unlist(tmp[["link"]]),
+	"year"=unlist(tmp[["year"]]),
+	"news"=unlist(tmp[["news"]]),
+	"safe_title"=unlist(tmp[["safe_title"]]),
+	"transcript"=unlist(tmp[["transcript"]]),
+	"alt"=unlist(tmp[["alt"]]),
+	"day"=unlist(tmp[["day"]]) 
+	)
+	suppressWarnings(xkcd2add <- data.frame(xkcd2add))
+	row.names(xkcd2add) <- xkcd2add$num
+	xkcd.updated <- rbind(xkcd.df,xkcd2add)
 	xkcd.df <- xkcd.updated
+	# write.csv(xkcd.updated,file="xkcd.csv",row.names=F)
 	save( xkcd.df, file=paste(home, ".Rconfig/rxkcd.rda", sep="/") , compress=TRUE)
 }
 #'
