@@ -40,6 +40,14 @@ a list containing the following fields: \itemize{
 This function fetches a XKCD comic strip (randomly or by number)
 and displays it on screen.
 }
+\details{
+Old \R versions may have problems accessing HTTPS URLs such as
+those used on the XKCD website. In case the default method of
+\code{\link{download.file}} fails, alternatives will be tried. For
+the best chance to succeed, ensure that the command line tools
+\code{"wget"} and \code{"curl"} as well as the \code{"RCurl"}
+package are installed.
+}
 \examples{
 
 library("RXKCD")
@@ -47,6 +55,5 @@ significant <- getXKCD(882, display=FALSE)
 
 }
 \references{
-\url{http://xkcd.com/license.html}
+\url{https://xkcd.com/license.html}
 }
-

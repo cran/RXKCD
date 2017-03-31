@@ -1,8 +1,8 @@
-6d930afb62862c29cfa80ce1b0575442 *DESCRIPTION
+2282388d6c7711ba5eb7c38d3ec70268 *DESCRIPTION
 2c5ff957cbef432e116620bbafb5c7ee *NAMESPACE
-545f7517c3edc106c988db4290f7f023 *R/getXKCD.R
+84ecaf1255805e4af7532c11ad5f82d3 *R/getXKCD.R
 6794d11bb32f767cc7c34f46dd399d5e *inst/xkcd/xkcd.csv
-9af7340df100d5ea92d5366ce0f4eca6 *man/getXKCD.Rd
-1665666b78e69e708bba2824c67669d0 *man/saveConfig.Rd
-c59d5b2cc48b4990f1edf57da8f024ef *man/searchXKCD.Rd
-155ef61e770ab5a68b7221c8a01ed2fd *man/updateConfig.Rd
+797828a3ae4baa8f25890e4e6119c1f9 *man/getXKCD.Rd
+4b3233dc3629117158377d855e2d7071 *man/saveConfig.Rd
+65a8513a659d411bf34d8e3a31f1b54a *man/searchXKCD.Rd
+db02e0f27eef308c24217c86ac11a024 *man/updateConfig.Rd
