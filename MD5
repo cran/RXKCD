@@ -1,9 +1,8 @@
-1d8e8f89c3bf64a74de3a81efdf9d0e7 *DESCRIPTION
-b5acac5ae31312f4b6e77a1c30c00c37 *NAMESPACE
-1a4c4d29c9c82c66fc4d443031a4cc6a *R/getXKCD.R
-35bec0a9ea755713d7522f30702fef8d *README.md
-88834f30cfe2a9d237f86eb761d6a706 *inst/xkcd/rxkcd.rda
-fe2cc52907af660a2d70eb5ebb2f3c84 *man/getXKCD.Rd
-4b3233dc3629117158377d855e2d7071 *man/saveConfig.Rd
-65a8513a659d411bf34d8e3a31f1b54a *man/searchXKCD.Rd
-db02e0f27eef308c24217c86ac11a024 *man/updateConfig.Rd
+b467107cb6ab56b49841bcabffc3543b *DESCRIPTION
+5e2cd33026f52efdf0c1fb34375afc27 *NAMESPACE
+dfa0eccd4cacbdc1b380b3077d3b02de *R/getXKCD.R
+badcff3dab526c9d3af895a845b8f5d7 *README.md
+2dfb09d4ae2a67c93d0137bad6d95e8d *man/getXKCD.Rd
+b7d85247c74036cdce8787f9bf0f05ed *man/searchXKCD.Rd
+c12e3a4bc93473eb640507c9016e73c8 *man/similarXKCD.Rd
+573ddd28cb9b8d5b8564476f8793c899 *man/updateConfig.Rd
